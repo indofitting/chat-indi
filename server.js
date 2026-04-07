@@ -34,11 +34,12 @@ app.post("/webhook", async (req, res) => {
     if (!waId || !text) return;
 
     // 4) Kirim balasan via Wati
-    await axios.post(
-      ${WATI_API_URL}/api/v1/sendSessionMessage/${waId},
-      { messageText: `Halo! Indi di sini. Kamu barusan chat: "${text}". Mau cari fitting untuk ruangan apa?` },
-      { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
-    );
+   await axios.post(
+  `${WATI_API_URL}/api/v1/sendSessionMessage?whatsappNumber=${waId}`,
+  { messageText: "Test reply dari bot" },
+  { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
+);
+
 
   } catch (err) {
     console.error("Error kirim balasan:", err.response?.data || err.message);
