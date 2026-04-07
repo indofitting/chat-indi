@@ -50,9 +50,10 @@ app.get("/webhook", (req, res) => {
 
 // webhook yang dipakai Wati (POST)
 app.post("/webhook", (req, res) => {
-  console.log("Webhook masuk:", req.body);
+  console.log("WATI PAYLOAD >>>", JSON.stringify(req.body));
   res.sendStatus(200);
 });
+
 
 // ─── ENVIRONMENT VARIABLES ────────────────────────────────────────────────────
 // Set ALL of these in Railway → your project → Variables tab
