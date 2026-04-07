@@ -17,44 +17,51 @@ const app     = express();
 
 app.use(express.json());
 app.post("/webhook", async (req, res) => {
-  // 1) ACK cepat ke Wati supaya tidak retry
+  // ACK cepat
   res.sendStatus(200);
 
   try {
     const body = req.body || {};
-    console.log("Webhook masuk:", JSON.stringify(body));
+    console.log("WATI PAYLOAD >>>", JSON.stringify(body));
 
-    // 2) Ambil nomor & pesan dari payload Wati kamu
-    const waId = body.waId;      // contoh: "6285194347575"
-    const text = body.text;      // contoh: "Hai"
-    const eventType = body.eventType;
+    // hanya proses inbound message
+    if (body.eventType !== "message") return;
 
-    // 3) Filter: hanya balas kalau ada pesan text masuk
-    if (eventType !== "message") return;
+    const waId = body.waId;
+    const text = body.text;
+
     if (!waId || !text) return;
 
-    // 4) Kirim balasan via Wati
-await axios.post(
-  `${WATI_API_URL}/api/v1/sendSessionMessage?whatsappNumber=${waId}`,
-  { messageText: `Halo! Indi di sini. Kamu chat: "${text}"` },
-  {
-    headers: {
-      Authorization: `Bearer ${WATI_API_TOKEN}`,
-      "Content-Type": "application/json",
-    },
+    // TODO: sementara jangan kirim dulu kalau masih 404
+    // (atau kirim tapi pastikan errornya ditangkap)
+    try {
+      const url = `${process.env.WATI_API_URL}/api/v1/sendSessionMessage?whatsappNumber=${waId}`;
+      const resp = await axios.post(
+        url,
+        { messageText: `Test reply: "${text}"` },
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.WATI_API_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          timeout: 15000,
+        }
+      );
+      console.log("WATI SEND OK:", resp.status);
+    } catch (e) {
+      console.error("WATI SEND FAIL:", {
+        message: e?.message,
+        status: e?.response?.status,
+        data: e?.response?.data,
+        url: e?.config?.url,
+      });
+    }
+
+  } catch (err) {
+    console.error("WEBHOOK HANDLER FAIL:", err?.message || err);
   }
-);
+});
 
-
-
-} catch (err) {
-  console.error("Error kirim balasan detail:", {
-    status: err.response?.status,
-    data: err.response?.data,
-    url: err.config?.url,
-    method: err.config?.method,
-  });
-}
 
 
 
