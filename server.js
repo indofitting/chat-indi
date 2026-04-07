@@ -16,6 +16,55 @@ const crypto  = require("crypto");
 const app     = express();
 
 app.use(express.json());
+app.get("/", (req, res) => res.status(200).send("OK"));
+
+app.post("/webhook", async (req, res) => {
+  // ACK cepat supaya Wati tidak retry
+  res.sendStatus(200);
+
+  const body = req.body || {};
+  console.log("WATI PAYLOAD >>>", JSON.stringify(body));
+
+  // hanya proses inbound message
+  if (body.eventType !== "message") return;
+
+  const waId = body.waId;   // "6285719118811"
+  const text = body.text;   // "Halo"
+  if (!waId || !text) return;
+
+  try {
+    const url =
+      `${process.env.WATI_API_URL}/api/v1/sendTemplateMessage` +
+      `?whatsappNumber=${waId}`;
+
+    await axios.post(
+      url,
+      {
+        template_name: process.env.WATI_TEMPLATE_NAME,
+        broadcast_name: "indi_auto_reply",
+        // kalau template kamu punya {{1}}:
+        parameters: [{ name: "1", value: text }],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.WATI_API_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+        timeout: 15000,
+      }
+    );
+
+    console.log("✅ Template sent to", waId);
+  } catch (e) {
+    console.error("❌ SEND TEMPLATE FAIL:", {
+      message: e?.message,
+      status: e?.response?.status,
+      data: e?.response?.data,
+      url: e?.config?.url,
+    });
+  }
+});
+
 app.post("/webhook", async (req, res) => {
   // ACK cepat
   res.sendStatus(200);
