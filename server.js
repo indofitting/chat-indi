@@ -37,14 +37,12 @@ app.post("/webhook", async (req, res) => {
       `${process.env.WATI_API_URL}/api/v1/sendTemplateMessage` +
       `?whatsappNumber=${waId}`;
 
-    await axios.post(
-      url,
-      {
-        template_name: process.env.WATI_TEMPLATE_NAME,
-        broadcast_name: "indi_auto_reply",
-        // kalau template kamu punya {{1}}:
-        parameters: [{ name: "1", value: text }],
-      },
+    await axios.post(url, {
+  templateName: process.env.WATI_TEMPLATE_NAME,
+  broadcastName: "indi_auto_reply",
+  parameters: [text]
+}, { headers: {...} });
+
       {
         headers: {
           Authorization: `Bearer ${process.env.WATI_API_TOKEN}`,
