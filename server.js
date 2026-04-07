@@ -16,6 +16,34 @@ const crypto  = require("crypto");
 const app     = express();
 
 app.use(express.json());
+app.post("/webhook", async (req, res) => {
+  try {
+    console.log("Webhook masuk:", JSON.stringify(req.body));
+
+    // TODO: sesuaikan field ini dengan payload Wati kamu
+    const phone = req.body?.waId || req.body?.contact?.wa_id || req.body?.phone;
+    const text  = req.body?.text || req.body?.message?.text || req.body?.body;
+
+    // ACK cepat ke Wati
+    res.sendStatus(200);
+
+    // Kalau belum ketemu phone/text, stop dulu (lihat log untuk bentuk payload)
+    if (!phone || !text) return;
+
+    // Kirim balasan test via Wati
+    await axios.post(
+      `${WATI_API_URL}/api/v1/sendSessionMessage/${phone}`,
+      { messageText: `Test reply dari Railway: kamu kirim "${text}"` },
+      { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
+    );
+
+  } catch (err) {
+    console.error("Webhook error:", err.response?.data || err.message);
+    // tetap balas 200 biar Wati tidak retry terus
+    try { res.sendStatus(200); } catch (e) {}
+  }
+});
+
 app.get("/webhook", (req, res) => {
   res.status(200).send("OK");
 });
