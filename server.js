@@ -35,10 +35,10 @@ app.post("/webhook", async (req, res) => {
     // TODO: sementara jangan kirim dulu kalau masih 404
     // (atau kirim tapi pastikan errornya ditangkap)
     try {
-const url = `${WATI_API_URL}/api/v1/sendSessionMessage/${waId}`;
+const url = `${WATI_API_URL}/api/v1/messages`;
 await axios.post(
   url,
-  { messageText: `Halo! Kamu chat: "${text}"` },
+  { whatsappNumber: waId, messageText: `Halo! Kamu chat: "${text}"` },
   {
     headers: {
       Authorization: `Bearer ${WATI_API_TOKEN}`,
@@ -46,6 +46,7 @@ await axios.post(
     },
   }
 );
+
 
 
 
