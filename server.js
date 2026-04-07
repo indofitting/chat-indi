@@ -16,6 +16,9 @@ const crypto  = require("crypto");
 const app     = express();
 
 app.use(express.json());
+app.get("/webhook", (req, res) => {
+  res.status(200).send("OK");
+});
 
 // ─── ENVIRONMENT VARIABLES ────────────────────────────────────────────────────
 // Set ALL of these in Railway → your project → Variables tab
