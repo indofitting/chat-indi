@@ -20,6 +20,12 @@ app.get("/webhook", (req, res) => {
   res.status(200).send("OK");
 });
 
+// webhook yang dipakai Wati (POST)
+app.post("/webhook", (req, res) => {
+  console.log("Webhook masuk:", req.body);
+  res.sendStatus(200);
+});
+
 // ─── ENVIRONMENT VARIABLES ────────────────────────────────────────────────────
 // Set ALL of these in Railway → your project → Variables tab
 const ANTHROPIC_API_KEY    = process.env.ANTHROPIC_API_KEY;
