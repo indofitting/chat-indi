@@ -17,32 +17,34 @@ const app     = express();
 
 app.use(express.json());
 app.post("/webhook", async (req, res) => {
+  // 1) ACK cepat ke Wati supaya tidak retry
+  res.sendStatus(200);
+
   try {
-    console.log("Webhook masuk:", JSON.stringify(req.body));
+    const body = req.body || {};
+    console.log("Webhook masuk:", JSON.stringify(body));
 
-    // TODO: sesuaikan field ini dengan payload Wati kamu
-    const phone = req.body?.waId || req.body?.contact?.wa_id || req.body?.phone;
-    const text  = req.body?.text || req.body?.message?.text || req.body?.body;
+    // 2) Ambil nomor & pesan dari payload Wati kamu
+    const waId = body.waId;      // contoh: "6285194347575"
+    const text = body.text;      // contoh: "Hai"
+    const eventType = body.eventType;
 
-    // ACK cepat ke Wati
-    res.sendStatus(200);
+    // 3) Filter: hanya balas kalau ada pesan text masuk
+    if (eventType !== "message") return;
+    if (!waId || !text) return;
 
-    // Kalau belum ketemu phone/text, stop dulu (lihat log untuk bentuk payload)
-    if (!phone || !text) return;
-
-    // Kirim balasan test via Wati
+    // 4) Kirim balasan via Wati
     await axios.post(
-      `${WATI_API_URL}/api/v1/sendSessionMessage/${phone}`,
-      { messageText: `Test reply dari Railway: kamu kirim "${text}"` },
+      `${WATI_API_URL}/api/v1/sendSessionMessage/${waId}`,
+      { messageText: `Halo! Indi di sini. Kamu barusan chat: "${text}". Mau cari fitting untuk ruangan apa?` },
       { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
     );
 
   } catch (err) {
-    console.error("Webhook error:", err.response?.data || err.message);
-    // tetap balas 200 biar Wati tidak retry terus
-    try { res.sendStatus(200); } catch (e) {}
+    console.error("Error kirim balasan:", err.response?.data || err.message);
   }
 });
+
 
 app.get("/webhook", (req, res) => {
   res.status(200).send("OK");
