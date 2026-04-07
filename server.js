@@ -35,7 +35,7 @@ app.post("/webhook", async (req, res) => {
 
     // 4) Kirim balasan via Wati
     await axios.post(
-      `${WATI_API_URL}/{tenantId}/api/v1/sendSessionMessage/{whatsappNumber}`,
+      ${WATI_API_URL}/api/v1/sendSessionMessage/${waId},
       { messageText: `Halo! Indi di sini. Kamu barusan chat: "${text}". Mau cari fitting untuk ruangan apa?` },
       { headers: { Authorization: `Bearer ${WATI_API_TOKEN}` } }
     );
