@@ -756,4 +756,7 @@ app.get("/", (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log(`🚀 Indi v3 running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Indi v3 running on port ${PORT}`);
+});
+
